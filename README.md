@@ -24,22 +24,24 @@ jQueryMobile can be used under the terms of the MIT License. Phonegap can be use
 
 Documents
 =========
-User Documents: https://github.com/reagan-lopez/FitnessGeek/blob/master/UserDoc.txt
+User Documents: https://github.com/reagan-lopez/fitnessgeek/blob/master/UserDoc.txt
 
-Developer Documents: https://github.com/reagan-lopez/FitnessGeek/blob/master/DevDoc.txt
+Developer Documents: https://github.com/reagan-lopez/fitnessgeek/blob/master/DevDoc.txt
 
 Binary file
 ===========
-https://github.com/reagan-lopez/FitnessGeek/blob/master/fitnessgeek.apk
+https://github.com/reagan-lopez/fitnessgeek/blob/master/fitnessgeek.apk
 
 Repository
 ==========
-https://github.com/reagan-lopez/FitnessGeek
+https://github.com/reagan-lopez/fitnessgeek
 
 Stable Version
 ==============
-https://github.com/reagan-lopez/FitnessGeek
+https://github.com/reagan-lopez/fitnessgeek
 
 Contact
 =======
 reaganlopez@gmail.com
+ajita@pdx.edu
+anambiar@pdx.edu
