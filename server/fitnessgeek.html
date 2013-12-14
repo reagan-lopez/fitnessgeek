@@ -1,0 +1,194 @@
+<!--
+	Copyright © 2013 Ajita Srivastava
+	[This program is licensed under the "MIT License"]
+	Please see the file LICENSE in the source
+	distribution of this software for license terms
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Fitness Geek</title>
+        <script src="http://code.jquery.com/jquery.min.js"></script>			<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" type="text/css" media="all" />		<link rel="stylesheet" href="css/fitnessgeek.css" type="text/css" media="all" />		
+    </head>
+    <body>	<div data-role="page" id="page1"  data-theme="c">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"</script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/modules/exporting.js"></script>		<script src="js/jquery.mobile-1.3.0.min.js"></script>					<div data-role="header"  data-theme="e" class="ui-center" >			<img style="width: 300px; height: 80px" src="images/fitnessgeek.png" />				</div> <!-- /header -->						<div data-role="content" id="activity-content"  data-theme="b" >						<div data-role="fieldcontain" data-inline="true">					<label for="time" class="select"><h3>Select Activity:</h3></label>					<select id="time" class = "time" name = "time"></select>				</div>		</div>			<div data-role="content" id="container" data-theme="b" style="min-width: 310px; height: 550px; margin: 0 auto">		</div>
+		<div data-role="content" id="activity-summary"  data-theme="b" >						<div data-role="fieldcontain" align="left">					<label for="summary"><h3>Activity Summary:</h3></label>							<div class="ui-grid-a" id="summary" name="summary">						<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Total Distance						</div></div>						<div class="ui-block-b"><div id="id-distance" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>												<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Average Speed						</div></div>						<div class="ui-block-b"><div id="id-speed" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>								<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Average Elevation						</div></div>						<div class="ui-block-b"><div id="id-elevation" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>												<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Average Temperature						</div></div>						<div class="ui-block-b"><div id="id-temperature" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>							<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Total Calories						</div></div>						<div class="ui-block-b"><div id="id-calories" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>												<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Resting Heart Rate						</div></div>						<div class="ui-block-b"><div id="id-restinghr" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>						<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Average Heart Rate						</div></div>						<div class="ui-block-b"><div id="id-avghr" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>						<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-left" style="height:20px">						Maximum Heart Rate						</div></div>						<div class="ui-block-b"><div id="id-maxhr" class="ui-bar ui-bar-c ui-left" style="height:20px">						</div></div>											</div>					</div>				
+            <script>
+                $('select.time').change(function(){
+                                               $.ajax({
+                                                       type: 'POST',
+                                                       url: 'connect_to_ DrawGraph.php',
+                                                       data: {selectFieldValue: $('select.time').val()},
+                                                       success: Draw,
+                                                       dataType:"text"
+                                                       });
+											  $.ajax({
+													 type: 'POST',
+													 url: 'connect_to_WriteDetails.php',
+													 data: {selectFieldValue: $('select.time').val()},
+													 success: Write,
+													 dataType:"text"
+													 });
+                                          });
+                                          function Draw(data) {
+                                          obj = jQuery.parseJSON(data);
+                                          //console.log(data);
+                                          var heart_rate =[];
+                                          var speed = [];
+                                          var elevation= [];
+                                          for(i=0;i<obj.Result.length;i++) {
+                                          heart_rate[i] =parseInt(obj.Result[i].rate);
+                                          speed[i] =parseFloat(obj.Result[i].curr_speed);
+                                          elevation[i] =parseFloat(obj.Result[i].curr_elevation);
+                                          }
+                                          var year = obj.Result[0].time.substring(0,4);
+                                          var month = obj.Result[0].time.substring(5,7);
+                                          var day = obj.Result[0].time.substring(8,10);
+                                          $('#container').highcharts({
+                                                                     chart:{type: 'spline'},
+                                                                     title: {
+                                                                        text: 'Activity Details',
+                                                                        x: -20 //center
+                                                                            },
+                                                                     xAxis: {
+                                                                        type: 'datetime',
+                                                                        dateTimeLabelFormats: {
+                                                                            second: '%H:%M:%S'
+                                                                                              }
+                                                                            },
+                                                                     yAxis: [
+                                                                             {title: {
+                                                                             text: 'Heart Rate(bpm)'
+                                                                             },
+                                                                             minorGridLineWidth: 0,
+                                                                             gridLineWidth: 0,
+                                                                             alternateGridColor: null,
+                                                                             plotBands: [{from: 80,
+                                                                                         to: 100,
+                                                                                         color: 'rgba(68, 170, 213, 0.1)',
+                                                                                         label:{text: 'Zone 0',
+                                                                                         style:{color: '#606060'}}},
+                                                                                         {from: 100,
+                                                                                         to: 120,
+                                                                                         color: 'rgba(0, 0, 0, 0)',
+                                                                                         label:{text: 'Zone 1',
+                                                                                         style:{color: '#606060'}}},
+                                                                                         {from: 120,
+                                                                                         to: 140,
+                                                                                         color: 'rgba(68, 170, 213, 0.1)',
+                                                                                         label:{text: 'Zone 2',
+                                                                                         style:{color: '#606060'}}},
+                                                                                         {from: 140,
+                                                                                         to: 160,
+                                                                                         color: 'rgba(0, 0, 0, 0)',
+                                                                                         label:{text: 'Zone 3',
+                                                                                         style:{color: '#606060'}}},
+                                                                                         {from: 160,
+                                                                                         to: 180,
+                                                                                         color: 'rgba(68, 170, 213, 0.1)',
+                                                                                         label:{text: 'Zone 4',
+                                                                                         style:{color: '#606060'}}},
+                                                                                         {from: 180,
+                                                                                         to: 200,
+                                                                                         color: 'rgba(0, 0, 0, 0)',
+                                                                                         label:{text: 'Zone 5',
+                                                                                         style:{color: '#606060'}}}]
+                                                                             },
+                                                                             {title: {
+                                                                             text: 'Speed(mph)/Elevation(ft)'
+                                                                             },
+                                                                             minorGridLineWidth: 0,
+                                                                             gridLineWidth: 0,
+                                                                             opposite:true}],
+                                                                     tooltip:{shared:true},
+                                                                     plotOptions: {
+                                                                        spline: {
+                                                                            lineWidth: 4,
+                                                                            states: {
+                                                                                hover: {
+                                                                                    lineWidth: 5
+                                                                                        }
+                                                                                    },
+                                                                            marker: {
+                                                                                enabled: false
+                                                                                    }
+                                                                                },
+                                                                        series: {
+                                                                            animation: {
+                                                                                duration: 10000
+                                                                                        }
+                                                                                }
+                                                                                },
+                                                                     legend: {
+                                                                        layout: 'vertical',
+                                                                        align: 'right',
+                                                                        verticalAlign: 'middle',
+                                                                        borderWidth: 0
+                                                                            },
+                                                                     series: [{
+                                                                              name: 'Heart Rate (bpm)',
+                                                                              data: heart_rate,
+                                                                              pointStart: Date.UTC(year,month-1,day),
+                                                                              pointInterval: 1000
+                                                                              },
+                                                                              {name: 'Speed (mph)',
+                                                                              data: speed,
+                                                                              yAxis:1,
+                                                                              pointStart: Date.UTC(year,month-1,day),
+                                                                              pointInterval: 1000
+                                                                              },
+                                                                              {name: 'Elevation (ft)',
+                                                                              data: elevation,
+                                                                              yAxis:1,
+                                                                              pointStart: Date.UTC(year,month-1,day),
+                                                                              pointInterval: 1000}]
+                                                                     });
+                                          }              
+                                                
+            function PopulateMenuItems() {
+                var temp;
+                $.ajax({
+                       url: 'load_DropDown.php',
+                       async:false,
+                       success: function(data){
+                       temp = data;}
+                       });
+                       return temp;
+            }
+            function DrawChart() {
+                var menuitems = [];
+                menuitems[0] = "Select";
+                menuitems[1] = "Longest";
+                menuitems[2] = "Latest";
+                menuitems[3] = "Fastest";
+                obj1 = jQuery.parseJSON(PopulateMenuItems());
+                for(i=0;i<obj1.Result.length;i++) {
+                    menuitems[i+4] =obj1.Result[i].create_ts;
+                }
+                var select = document.getElementById("time");
+                for(var i = 0; i < menuitems.length; i++) {
+                    var opt = menuitems[i];
+                    var el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    select.appendChild(el);
+                }
+             }
+            function Write(data) {
+                obj = jQuery.parseJSON(data);
+                var calories = parseInt(obj.Result[0].calories);
+                var resting = parseInt(obj.Result[0].resting);
+                var average = parseInt(obj.Result[0].average);
+                var maximum = parseInt(obj.Result[0].maximum);
+                var tot_distance =parseFloat(obj.Result[0].tot_distance);
+                var avg_speed =parseFloat(obj.Result[0].avg_speed);
+                var avg_elevation =parseFloat(obj.Result[0].avg_elevation);
+                var avg_temperature =parseFloat(obj.Result[0].avg_temperature);				document.getElementById("id-distance").innerHTML = tot_distance + " mi";				document.getElementById("id-speed").innerHTML = avg_speed + " mph";				document.getElementById("id-elevation").innerHTML = avg_elevation + " ft";				document.getElementById("id-temperature").innerHTML = avg_temperature + " F";				document.getElementById("id-calories").innerHTML = calories;				document.getElementById("id-restinghr").innerHTML = resting + " bpm";				document.getElementById("id-avghr").innerHTML = average + " bpm";				document.getElementById("id-maxhr").innerHTML = maximum + " bpm";
+            }			
+            DrawChart();
+            </script>	</div>
+    </body>
+</html>

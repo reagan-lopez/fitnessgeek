@@ -1,0 +1,162 @@
+<!--
+	Copyright © 2013 Reagan Lopez
+	[This program is licensed under the "MIT License"]
+	Please see the file LICENSE in the source
+	distribution of this software for license terms
+-->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Fitness Geek</title>
+		<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" type="text/css" media="all" />
+		<link rel="stylesheet" href="css/fitnessgeek.css" type="text/css" media="all" />
+		<script src="cordova-2.4.0.js"></script>		
+		<script src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/jquery.mobile-1.3.0.min.js"></script>	
+		<script src="js/fitnessgeek.js"></script>	
+		<script src="http://api.openweathermap.org/data/2.5/weather?q=London,uk&callback=test"></script>		
+		
+		<script>
+			$(document).ready(function() {
+			  //onload tasks			  
+			  $("#stop-button-div").hide();
+			  $("#activity-content").show();
+			  $("#history-content").hide();
+			  $("#music-content").hide(); 
+			  var db = window.openDatabase("Database", "1.0", "FitnessGeek", 200000);
+			  db.transaction(createTables, errorCB);		  
+			  
+			  
+			  //start button click
+			  $("#start-button-div").click(function() {
+				startInitialize(); //initialize all global variables
+				document.getElementById("id-distance").innerHTML = "";
+				document.getElementById("id-time").innerHTML = "";				
+				document.getElementById("id-speed").innerHTML = "";				
+				document.getElementById("id-elevation").innerHTML = "";	
+				document.getElementById("id-temperature").innerHTML = "";
+				desired_speed = parseFloat($("#desired-speed").val());				
+				var options = { frequency: 1000, timeout: 30000, enableHighAccuracy: true }; //set the options for fetching geolocation data
+				watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);	 //call the function for fetching geolocation data
+				timeCounter = setInterval(setTime, 1000);
+				$("#start-button-div").hide();
+				$("#stop-button-div").show();
+				$('#desired-speed').slider('disable');			
+	
+			    $("#id-distance").css("color", "green");
+			    $("#id-time").css("color", "green")				
+			    $("#id-speed").css("color", "green");;
+			    $("#id-elevation").css("color", "green");
+			    $("#id-temperature").css("color", "green");					
+			  });
+
+			  //stop button click
+			  $("#stop-button-div").click(function() {
+				clearInterval(timeCounter);
+			    clearWatch();
+				var db1 = window.openDatabase("Database", "1.0", "FitnessGeek", 200000);
+				db1.transaction(insertActivity, errorCB);
+				syncActivityLog();
+				var db2 = window.openDatabase("Database", "1.0", "FitnessGeek", 200000);
+				db2.transaction(deleteActivityLog, errorCB);						
+				$("#stop-button-div").hide();
+				$("#start-button-div").show();
+			    $("#id-distance").css("color", "black");
+			    $("#id-time").css("color", "black");				
+				$("#id-speed").css("color", "black");				
+			    $("#id-elevation").css("color", "black");
+				$("#id-temperature").css("color", "black");
+				$('#desired-speed').slider( 'enable' );						
+			  });	
+			  
+			  //radio button click
+			  $(":radio").bind ("change", function(event) {	   
+				  var db = window.openDatabase("Database", "1.0", "FitnessGeek", 200000);
+				  if ($(this).attr("value") == 'choice-latest') {
+					db.transaction(fetchLatestActivity, errorCB);
+				  } else if ($(this).attr("value") == 'choice-longest') { 
+				    db.transaction(fetchLongestActivity, errorCB);
+				  } else if ($(this).attr("value") == 'choice-fastest') {
+					db.transaction(fetchFastestActivity, errorCB);
+				  } else if ($(this).attr("value") == 'choice-all') {
+				    db.transaction(fetchActivityHistory, errorCB);
+				  }   				  
+			  });
+			  
+			});
+		</script>		
+	</head> <!-- /head -->
+    <body>
+        <div data-role="page" id="page1"  data-theme="c">
+            <div data-role="header"  data-theme="e" class="ui-center">
+			<img style="width: 200px; height: 50px" src="images/fitnessgeek.png" />		
+            </div> <!-- /header -->
+			
+			<div data-role="content" id="activity-content"  data-theme="c">
+				<div data-role="fieldcontain" align="left">
+					<h3 class="ui-center">Activity Data</h3>
+					<div class="ui-grid-a">
+						<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-center" style="height:30px">
+						<img style="width: 30px; height: 30px" src="images/time-icon.png" />
+						</div></div>
+						<div class="ui-block-b"><div class="ui-bar ui-bar-b ui-center" style="height:30px">
+						<img style="width: 30px; height: 30px" src="images/speed-icon.png" />
+						</div></div>
+						<div class="ui-block-a"><div id="id-time" class="ui-bar ui-bar-c ui-center ui-vertical-align-2" >--</div></div>
+						<div class="ui-block-b"><div id="id-speed" class="ui-bar ui-bar-c ui-center ui-vertical-align-2" >--</div></div>  	
+					</div>
+					
+					<div id="id-distance" class="ui-bar ui-bar-c ui-center ui-vertical-align-1">--</div>
+
+					<div class="ui-grid-a">
+						<div class="ui-block-a"><div id="id-elevation" class="ui-bar ui-bar-c ui-center ui-vertical-align-2" >--</div></div>
+						<div class="ui-block-b"><div id="id-temperature" class="ui-bar ui-bar-c ui-center ui-vertical-align-2" >--</div></div>
+						<div class="ui-block-a"><div class="ui-bar ui-bar-b ui-center" style="height:30px">
+						<img style="width: 30px; height: 30px" src="images/elevation-icon.png" />
+						</div></div>
+						<div class="ui-block-b"><div class="ui-bar ui-bar-b ui-center" style="height:30px">
+						<img style="width: 30px; height: 30px" src="images/temperature-icon.png" />
+						</div></div>												
+					</div>												
+				</div>
+				<div data-role="fieldcontain">
+					<div align="left">
+						<h3 class="ui-center">Desired Speed</h3>
+					</div>
+					<input id="desired-speed" type="range" name="slider" min="0" max="20" value="0" data-highlight="true">
+				</div>
+					<div id="start-button-div" align="center"><input id="start-button" type="button" data-theme="g" value="Start" class="start-button" data-inline="true"/></div>			
+					<div id="stop-button-div" align="center"><input id="stop-button" type="button" data-theme="r" value="Stop" class="stop-button" data-inline="true" /></div>				
+			</div> <!-- /activity content -->
+			
+			<div data-role="content" id="history-content"  data-theme="c">
+				<h3 class="ui-center">Activity History</h3>
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="ui-center" id="myradio">
+						<input type="radio" name="radio-mini" id="radio-latest" value="choice-latest" checked="checked" data-theme="e"/>
+						<label for="radio-latest">Latest</label>
+						<input type="radio" name="radio-mini" id="radio-longest" value="choice-longest" data-theme="e"/>
+						<label for="radio-longest">Longest</label>
+						<input type="radio" name="radio-mini" id="radio-fastest" value="choice-fastest" data-theme="e"/>
+						<label for="radio-fastest">Fastest</label>						
+						<input type="radio" name="radio-mini" id="radio-all" value="choice-all" data-theme="e"/>
+						<label for="radio-all">All</label>						
+				</fieldset>	
+				<br>
+				<div id="no-activity"></div>
+				<div id="history-details"> <!-- dynamically populated by js --> </div>
+			</div> <!-- /history content -->
+			
+			<div data-role="footer" style="overflow:hidden;" data-position="fixed" data-theme="e">
+				<div data-role="navbar" data-iconpos="right">
+					<ul>
+						<li id="activity-footer"><a href="" data-icon="home" onclick="showActivity()" class="ui-btn-active ui-state-persist">Activity</a></li>
+						<li id="history-footer"><a href="" data-icon="grid" onclick="showHistory()">History</a></li>
+					</ul>
+				</div>
+			</div><!-- /footer -->
+		</div> <!-- /page -->
+    </body>
+</html>

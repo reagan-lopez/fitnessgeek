@@ -1,0 +1,14 @@
+Installation Instructions:
+1. Download the fitnessgeek.apk file from github to your computer.
+2. Connect the android device to the computer. Be sure to enable USB debugging on the device. To do that go to Settings>Developer Option.
+3. Copy the fitnessgeek.apk file to any folder in your android device.
+4. Open the fitnessgeek.apk file in your android device and follow the instructions to install the app.
+
+Usage Instructions:
+1. Ensure that your phone is connected to the internet and GPS. Also ensure that your phone is not in silent mode.
+2. Find the installed app (FitnessGeek) in your android device and open the app. 
+3. Change the desired speed if required. Default is set to 0mph.
+4. Press the START button. The app will display your activity data.
+5. If your speed is lower than the desired speed, the app will produce a notification sound.
+6. The notification sound is the sound set on your android device. This can be changed.
+7. Press the STOP button to stop the app. 
