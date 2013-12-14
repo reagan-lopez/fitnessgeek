@@ -30,7 +30,7 @@ Developer Documents: https://github.com/reagan-lopez/FitnessGeek/blob/master/Dev
 
 Binary file
 ===========
-https://github.com/reagan-lopez/FitnessGeek/blob/master/FitnessGeek.apk
+https://github.com/reagan-lopez/FitnessGeek/blob/master/fitnessgeek.apk
 
 Repository
 ==========
