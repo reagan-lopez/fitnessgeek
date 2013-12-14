@@ -43,5 +43,7 @@ https://github.com/reagan-lopez/fitnessgeek
 Contact
 =======
 reaganlopez@gmail.com
+
 ajita@pdx.edu
+
 anambiar@pdx.edu
